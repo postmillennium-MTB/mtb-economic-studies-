@@ -1,1 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trail Investment ROI Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --forest: #1E3A1F;
+  --fern: #2D6A30;
+  --leaf: #4A9951;
+  --sage: #A8C5A0;
+  --cream: #F7F4EE;
+  --parchment: #EDE8DE;
+  --earth: #6B4C28;
+  --bark: #3D2B1A;
+  --stone: #7A7068;
+  --sky: #2A5F8A;
+  --amber: #C47A1A;
+  --rust: #B84C24;
+  --white: #FFFFFF;
+  --text-primary: #1A1A18;
+  --text-secondary: #4A4A42;
+  --text-muted: #7A7A70;
+  --border: #D5CFBF;
+  --border-light: #E8E3D8;
+  --input-bg: #FFFEFB;
+  --card-bg: #FFFFFF;
+  --section-bg: #F2EEE4;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.page-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
+/* ── HEADER ── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.header-left {}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fern);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.page-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--forest);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.page-sub { font-size: 13px; color: var(--text-muted); }
+.scenario-group { text-align: right; }
+.scenario-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+.scenario-btns { display: flex; gap: 6px; justify-content: flex-end; }
+.scenario-btn {
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--white);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  transition: all 0.15s;
+}
+.scenario-btn:hover { border-color: var(--fern); color: var(--fern); }
+.scenario-btn.active {
+  background: var(--fern);
+  color: white;
+  border-color: var(--fern);
+  font-weight: 500;
+}
+
+/* ── LAYOUT ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.panel { position: sticky; top: 20px; }
+
+/* ── INPUT PANEL ── */
+.input-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.input-section { padding: 1.25rem; border-bottom: 1px solid var(--border-light); }
+.input-section:last-child { border-bottom: none; }
+.input-section-title {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.input-section-title .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--sage);
+}
+.slider-row { margin-bottom: 14px; }
+.slider-row:last-child { margin-bottom: 0; }
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+.slider-val {
+  font-weight: 500;
+  color: var(--forest);
+}
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--parchment);
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--fern);
+  border: 2px solid var(--white);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--fern);
+  border: 2px solid var(--white);
+  cursor: pointer;
+}
+.slider-hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+/* ── RESULTS ── */
+.results-col {}
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.metric-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.metric-card.highlight { border-color: var(--leaf); background: #F0F8F0; }
+.metric-card.warn { border-color: var(--amber); background: #FBF5E8; }
+.metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; }
+.metric-value { font-size: 22px; font-weight: 600; color: var(--forest); line-height: 1; }
+.metric-value.good { color: var(--fern); }
+.metric-value.caution { color: var(--amber); }
+.metric-value.ok { color: var(--sky); }
+.metric-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.chart-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 14px;
+}
+.chart-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.chart-card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.legend-dot.dashed {
+  background: repeating-linear-gradient(90deg, #D85A30 0 4px, transparent 4px 7px);
+  height: 3px;
+  border-radius: 0;
+  width: 18px;
+  margin-top: 1px;
+}
+.badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.badge-direct { background: #DFF2E4; color: #1B6B35; }
+.badge-indirect { background: #DBE9F7; color: #1B4F80; }
+
+/* property callout */
+.callout {
+  background: #EDF5ED;
+  border: 1px solid #A8D4AE;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 14px;
+}
+.callout-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fern);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.callout-body { font-size: 13px; color: #2A5A2D; line-height: 1.5; }
+
+/* highway compare */
+.compare-item { margin-bottom: 12px; }
+.compare-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.compare-val-txt { font-weight: 500; color: var(--text-primary); }
+.bar-track {
+  height: 22px;
+  background: var(--parchment);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+.bar-fill-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* 2-col chart row */
+.chart-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* sources */
+.sources {
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-light);
+  padding-top: 1.25rem;
+  line-height: 1.7;
+}
+.sources strong { color: var(--text-secondary); }
+
+/* breakeven annotation */
+.breakeven-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--section-bg);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+@media (max-width: 800px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .panel { position: static; }
+  .metrics-row { grid-template-columns: 1fr 1fr; }
+  .chart-2col { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="header-left">
+      <p class="eyebrow">Municipal Planning Tool</p>
+      <h1 class="page-title">Trail Investment ROI Calculator</h1>
+      <p class="page-sub">Based on 50+ economic studies · TPL, IMBA, NAR &amp; municipal data (2025)</p>
+    </div>
+    <div class="scenario-group">
+      <p class="scenario-label">Projection scenario</p>
+      <div class="scenario-btns">
+        <button class="scenario-btn" id="btn-conservative" onclick="setScenario('conservative')">Conservative</button>
+        <button class="scenario-btn active" id="btn-moderate" onclick="setScenario('moderate')">Moderate</button>
+        <button class="scenario-btn" id="btn-optimistic" onclick="setScenario('optimistic')">Optimistic</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+
+    <!-- ── LEFT: INPUTS ── -->
+    <aside class="panel">
+      <div class="input-card">
+
+        <div class="input-section">
+          <p class="input-section-title"><span class="dot" style="background:#4A9951"></span>Trail project</p>
+          <div class="slider-row">
+            <div class="slider-label">Miles of trail <span class="slider-val" id="v-miles">10 mi</span></div>
+            <input type="range" id="s-miles" min="1" max="60" step="1" value="10" oninput="sv('miles',this.value);recalc()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Construction cost / mile <span class="slider-val" id="v-buildcost">$50K</span></div>
+            <input type="range" id="s-buildcost" min="10000" max="120000" step="5000" value="50000" oninput="sv('buildcost',this.value);recalc()">
+            <p class="slider-hint">Volunteer: ~$5–15K · Pro-built: $60–80K (2026)</p>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Maintenance / mile / year <span class="slider-val" id="v-maint">$2,500</span></div>
+            <input type="range" id="s-maint" min="500" max="8000" step="250" value="2500" oninput="sv('maint',this.value);recalc()">
+            <p class="slider-hint">Typical range: $1,500–$5,000</p>
+          </div>
+        </div>
+
+        <div class="input-section">
+          <p class="input-section-title"><span class="dot" style="background:#2A5F8A"></span>Visitor activity</p>
+          <div class="slider-row">
+            <div class="slider-label">Annual visitors / mile <span class="slider-val" id="v-visitors">1,000</span></div>
+            <input type="range" id="s-visitors" min="100" max="5000" step="50" value="1000" oninput="sv('visitors',this.value);recalc()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Avg spending / visit <span class="slider-val" id="v-spend">$175</span></div>
+            <input type="range" id="s-spend" min="50" max="600" step="5" value="175" oninput="sv('spend',this.value);recalc()">
+            <p class="slider-hint">Research range: $103–$416/trip (TPL 2025)</p>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Overnight visitors <span class="slider-val" id="v-overnight">30%</span></div>
+            <input type="range" id="s-overnight" min="0" max="80" step="5" value="30" oninput="sv('overnight',this.value);recalc()">
+            <p class="slider-hint">Overnight visitors spend ~2× more than day-trippers</p>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">City sales tax rate (city share) <span class="slider-val" id="v-salestax">2.0%</span></div>
+            <input type="range" id="s-salestax" min="0.5" max="5.0" step="0.25" value="2.0" oninput="sv('salestax',this.value);recalc()">
+          </div>
+        </div>
+
+        <div class="input-section">
+          <p class="input-section-title"><span class="dot" style="background:#C47A1A"></span>Real estate impact</p>
+          <div class="slider-row">
+            <div class="slider-label">Homes within ½ mile of trail <span class="slider-val" id="v-homes">100</span></div>
+            <input type="range" id="s-homes" min="0" max="1500" step="25" value="100" oninput="sv('homes',this.value);recalc()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Average home value <span class="slider-val" id="v-homeval">$350K</span></div>
+            <input type="range" id="s-homeval" min="100000" max="1200000" step="25000" value="350000" oninput="sv('homeval',this.value);recalc()">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Property value premium <span class="slider-val" id="v-propprem">5%</span></div>
+            <input type="range" id="s-propprem" min="0" max="15" step="0.5" value="5" oninput="sv('propprem',this.value);recalc()">
+            <p class="slider-hint">Studies: 3–5% typical, up to 15% (NAR/Crompton 2019)</p>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Property tax rate <span class="slider-val" id="v-proptax">1.2%</span></div>
+            <input type="range" id="s-proptax" min="0.3" max="3.5" step="0.1" value="1.2" oninput="sv('proptax',this.value);recalc()">
+          </div>
+        </div>
+
+        <div class="input-section">
+          <p class="input-section-title"><span class="dot" style="background:#B84C24"></span>Economic factors</p>
+          <div class="slider-row">
+            <div class="slider-label">Economic multiplier <span class="slider-val" id="v-multiplier">1.5×</span></div>
+            <input type="range" id="s-multiplier" min="1.0" max="2.5" step="0.1" value="1.5" oninput="sv('multiplier',this.value);recalc()">
+            <p class="slider-hint">Ripple effect of visitor spending in local economy</p>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">Projection horizon <span class="slider-val" id="v-years">20 yrs</span></div>
+            <input type="range" id="s-years" min="5" max="30" step="1" value="20" oninput="sv('years',this.value);recalc()">
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ── RIGHT: RESULTS ── -->
+    <main class="results-col">
+
+      <!-- KEY METRICS -->
+      <div class="metrics-row">
+        <div class="metric-card" id="card-breakeven">
+          <p class="metric-label">Breakeven year<br>(municipal revenue)</p>
+          <p class="metric-value" id="m-breakeven">—</p>
+          <p class="metric-sub" id="m-breakeven-sub"></p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">Return on construction<br>cost (10-year)</p>
+          <p class="metric-value" id="m-roi">—</p>
+          <p class="metric-sub">municipal tax revenue</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">10-year economic<br>impact</p>
+          <p class="metric-value ok" id="m-impact">—</p>
+          <p class="metric-sub">local economy (direct + multiplier)</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">Estimated full-time<br>jobs supported</p>
+          <p class="metric-value" id="m-jobs">—</p>
+          <p class="metric-sub">annual FTEs (IMBA benchmark)</p>
+        </div>
+      </div>
+
+      <!-- BREAKEVEN CHART -->
+      <div class="chart-card">
+        <p class="chart-card-title">Cumulative investment vs. return — <span id="chart-years-label">20-year</span> projection</p>
+        <p class="chart-card-sub">When does trail revenue exceed the initial construction investment?</p>
+        <div class="legend-row">
+          <span class="legend-item"><span class="legend-dot" style="background:#D85A30;"></span>Total cost (construction + maintenance)</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#2D6A30;"></span>Cumulative municipal revenue <span class="badge badge-direct" style="margin-left:4px;">direct</span></span>
+          <span class="legend-item"><span class="legend-dot" style="background:#2A5F8A; opacity:0.7;"></span>Total economic impact <span class="badge badge-indirect" style="margin-left:4px;">indirect</span></span>
+        </div>
+        <div style="position:relative;height:300px;">
+          <canvas id="chartBreakeven" role="img" aria-label="Line chart showing cumulative trail construction cost versus cumulative municipal revenue and total economic impact over time. Shows when investment breaks even.">Breakeven line chart</canvas>
+        </div>
+        <p class="breakeven-note" id="breakeven-annotation"></p>
+      </div>
+
+      <!-- PROPERTY VALUE CALLOUT -->
+      <div class="callout">
+        <p class="callout-title">&#127968; Property value impact</p>
+        <p class="callout-body" id="prop-callout">Calculating…</p>
+      </div>
+
+      <!-- 2-COL CHARTS -->
+      <div class="chart-2col">
+        <div class="chart-card" style="margin-bottom:0;">
+          <p class="chart-card-title">Annual benefit breakdown</p>
+          <p class="chart-card-sub">Direct municipal + broader economic</p>
+          <div id="donut-legend" class="legend-row"></div>
+          <div style="position:relative;height:200px;">
+            <canvas id="chartDonut" role="img" aria-label="Donut chart showing the split between sales tax revenue, property tax revenue, and broader economic impact">Revenue breakdown</canvas>
+          </div>
+        </div>
+        <div class="chart-card" style="margin-bottom:0;">
+          <p class="chart-card-title">Cumulative municipal revenue</p>
+          <p class="chart-card-sub">Tax return at key milestones vs. construction cost</p>
+          <div style="position:relative;height:220px;">
+            <canvas id="chartMilestones" role="img" aria-label="Bar chart showing cumulative municipal revenue at year 1, 5, 10, 15, and 20, compared to construction cost">Milestone bar chart</canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- HIGHWAY COMPARISON -->
+      <div class="chart-card">
+        <p class="chart-card-title">Infrastructure cost comparison — cost per mile</p>
+        <p class="chart-card-sub">Your trail project vs. conventional road infrastructure. Logarithmic scale.</p>
+        <div id="highway-compare" style="margin-top:8px;"></div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:10px;">Highway sources: FHWA, Quora/DOT compiled data (2020–2024). Trail sources: Singletracks.com contractor survey (2026), American Trails database.</p>
+      </div>
+
+      <!-- ANNUAL BREAKDOWN TABLE -->
+      <div class="chart-card">
+        <p class="chart-card-title">Year-by-year summary (first 10 years)</p>
+        <p class="chart-card-sub">Cumulative costs, municipal revenue, and net economic impact</p>
+        <div style="overflow-x:auto;">
+          <table id="summary-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-weight:500;">Year</th>
+                <th style="text-align:right;padding:6px 8px;color:var(--text-muted);font-weight:500;">Cumul. Cost</th>
+                <th style="text-align:right;padding:6px 8px;color:var(--text-muted);font-weight:500;">Municipal Revenue</th>
+                <th style="text-align:right;padding:6px 8px;color:var(--text-muted);font-weight:500;">Economic Impact</th>
+                <th style="text-align:right;padding:6px 8px;color:var(--text-muted);font-weight:500;">Net (Municipal)</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOURCES -->
+      <div class="sources">
+        <strong>Data sources &amp; methodology:</strong>
+        <br>Visitor spending benchmarks from Trust for Public Land / IMBA <em>Economic Benefits of Mountain Biking</em> (2025) — meta-analysis of 50 studies. Conservative ($103/trip) based on Duluth, MN data; moderate ($175/trip) is a regional mid-range; optimistic ($416/trip) is the TPL 2025 national average. Property value premiums from Crompton &amp; Nicholls (2019) review of 20+ trail studies; NAR Field Guide on Trails and Property Values. Trail build costs: Singletracks.com contractor survey (April 2026), American Trails database. Maintenance costs: American Trails $1,500–$5,000/mile/year range. Highway costs: FHWA, Quora/DOT data (2020–2024). Job estimates use $45,000 labor income per FTE from IMBA regional studies. Economic multiplier of 1.2–1.8× is standard for rural/small-city tourism analysis.
+        <br><br>
+        <strong>Definitions:</strong> <em>Direct / municipal revenue</em> = sales tax captured by municipality + property tax from home value premium. <em>Economic impact</em> = total visitor spending in local economy, adjusted for overnight share and multiplier. <em>Breakeven</em> = year when cumulative municipal revenue first exceeds initial construction cost (maintenance excluded). This tool is for planning and advocacy — validate with local tax rate and visitor data for formal municipal presentations.
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+
+/* ─────────────────────────────────
+   SCENARIOS
+───────────────────────────────── */
+const SCENARIOS = {
+  conservative: {
+    miles:30, buildcost:35000, maint:1500, visitors:500, spend:103,
+    overnight:15, salestax:1.5, homes:50, homeval:280000,
+    propprem:3, proptax:1.0, multiplier:1.2, years:20
+  },
+  moderate: {
+    miles:10, buildcost:50000, maint:2500, visitors:1000, spend:175,
+    overnight:30, salestax:2.0, homes:100, homeval:350000,
+    propprem:5, proptax:1.2, multiplier:1.5, years:20
+  },
+  optimistic: {
+    miles:20, buildcost:60000, maint:3000, visitors:2000, spend:416,
+    overnight:50, salestax:2.5, homes:200, homeval:420000,
+    propprem:8, proptax:1.4, multiplier:1.8, years:20
+  }
+};
+
+/* ─────────────────────────────────
+   DISPLAY FORMATTERS
+───────────────────────────────── */
+function fmtCur(n) {
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + Math.round(n/1000) + 'K';
+  return '$' + Math.round(n);
+}
+function fmtNum(n) { return Math.round(n).toLocaleString(); }
+
+/* ─────────────────────────────────
+   SLIDER DISPLAY UPDATER
+───────────────────────────────── */
+const FMT = {
+  miles: v => v + ' mi',
+  buildcost: v => fmtCur(parseFloat(v)),
+  maint: v => '$' + fmtNum(parseFloat(v)),
+  visitors: v => fmtNum(parseFloat(v)),
+  spend: v => '$' + v,
+  overnight: v => v + '%',
+  salestax: v => parseFloat(v).toFixed(2) + '%',
+  homes: v => fmtNum(parseFloat(v)),
+  homeval: v => fmtCur(parseFloat(v)),
+  propprem: v => parseFloat(v).toFixed(1) + '%',
+  proptax: v => parseFloat(v).toFixed(1) + '%',
+  multiplier: v => parseFloat(v).toFixed(1) + '×',
+  years: v => v + ' yrs'
+};
+function sv(id, value) {
+  const el = document.getElementById('v-' + id);
+  if (el && FMT[id]) el.textContent = FMT[id](value);
+}
+
+/* ─────────────────────────────────
+   GET CURRENT VALUES
+───────────────────────────────── */
+function getV() {
+  const g = id => parseFloat(document.getElementById('s-' + id).value);
+  return {
+    miles: g('miles'), buildcost: g('buildcost'), maint: g('maint'),
+    visitors: g('visitors'), spend: g('spend'), overnight: g('overnight'),
+    salestax: g('salestax'), homes: g('homes'), homeval: g('homeval'),
+    propprem: g('propprem'), proptax: g('proptax'),
+    multiplier: g('multiplier'), years: Math.round(g('years'))
+  };
+}
+
+/* ─────────────────────────────────
+   CORE MODEL
+───────────────────────────────── */
+function calcModel(v) {
+  const totalVisitors = v.miles * v.visitors;
+  // overnight visitors spend ~2x day visitors
+  const oFrac = v.overnight / 100;
+  const effectiveSpend = v.spend * (1 - oFrac) + v.spend * 2 * oFrac;
+  const totalSpend = totalVisitors * effectiveSpend;
+
+  // Direct / municipal revenue
+  const salesTaxAnn = totalSpend * (v.salestax / 100);
+  const propTaxAnn  = v.homes * v.homeval * (v.propprem / 100) * (v.proptax / 100);
+  const annualMunicipal = salesTaxAnn + propTaxAnn;
+
+  // Broader economic impact
+  const annualEconomic = totalSpend * v.multiplier;
+
+  // Capital + annual
+  const capitalCost = v.miles * v.buildcost;
+  const annualMaint = v.miles * v.maint;
+
+  // Breakeven: when cumulative municipal revenue >= capitalCost
+  let breakeven = null;
+  for (let yr = 1; yr <= 60; yr++) {
+    if (annualMunicipal * yr >= capitalCost) { breakeven = yr; break; }
+  }
+
+  const municipal10 = annualMunicipal * 10;
+  const economic10  = annualEconomic * 10;
+  const roi10 = capitalCost > 0 ? ((municipal10 / capitalCost) - 1) * 100 : 0;
+
+  // Jobs: IMBA benchmark ~$45K labor income per FTE
+  const jobs = Math.round(annualEconomic / 45000);
+
+  // Property value total
+  const propValueAdded = v.homes * v.homeval * (v.propprem / 100);
+
+  return {
+    capitalCost, annualMaint, annualMunicipal, annualEconomic,
+    salesTaxAnn, propTaxAnn, breakeven,
+    municipal10, economic10, roi10, jobs, totalVisitors,
+    totalSpend, effectiveSpend, propValueAdded
+  };
+}
+
+/* ─────────────────────────────────
+   CHARTS REGISTRY
+───────────────────────────────── */
+const CH = {};
+function destroyChart(id) { if (CH[id]) { CH[id].destroy(); delete CH[id]; } }
+
+/* ─────────────────────────────────
+   RECALC — main update function
+───────────────────────────────── */
+function recalc() {
+  const v = getV();
+  const m = calcModel(v);
+
+  /* ── METRIC CARDS ── */
+  // Breakeven
+  const be = m.breakeven;
+  const beEl = document.getElementById('m-breakeven');
+  const beCard = document.getElementById('card-breakeven');
+  if (!be) {
+    beEl.textContent = '> 60 yrs';
+    beEl.className = 'metric-value caution';
+    beCard.className = 'metric-card warn';
+  } else if (be <= 10) {
+    beEl.textContent = be + ' yrs';
+    beEl.className = 'metric-value good';
+    beCard.className = 'metric-card highlight';
+  } else {
+    beEl.textContent = be + ' yrs';
+    beEl.className = 'metric-value';
+    beCard.className = 'metric-card';
+  }
+  document.getElementById('m-breakeven-sub').textContent = be
+    ? (be <= 5 ? 'Excellent ROI' : be <= 15 ? 'Solid investment' : 'Long-term return')
+    : 'Extend scenario or raise assumptions';
+
+  // ROI
+  const roiEl = document.getElementById('m-roi');
+  roiEl.textContent = (m.roi10 >= 0 ? '+' : '') + Math.round(m.roi10) + '%';
+  roiEl.className = 'metric-value' + (m.roi10 > 50 ? ' good' : m.roi10 < 0 ? ' caution' : '');
+
+  document.getElementById('m-impact').textContent = fmtCur(m.economic10);
+  document.getElementById('m-jobs').textContent = fmtNum(m.jobs);
+
+  /* ── PROPERTY CALLOUT ── */
+  document.getElementById('prop-callout').textContent =
+    fmtNum(v.homes) + ' homes near the trail gain an estimated ' + v.propprem + '% property value premium — adding ' +
+    fmtCur(m.propValueAdded) + ' in total assessed value. At a ' + v.proptax + '% property tax rate this generates ' +
+    fmtCur(m.propTaxAnn) + '/year in new municipal revenue without raising taxes on anyone. ' +
+    '(Research range: 3–15% premium across 20+ studies. Indianapolis Cultural Trail: $1B in assessed value added within 500 ft of trail, 2008–2014.)';
+
+  document.getElementById('chart-years-label').textContent = v.years + '-year';
+
+  /* ── CHARTS ── */
+  updateBreakevenChart(v, m);
+  updateDonutChart(v, m);
+  updateMilestoneChart(v, m);
+  updateHighwayCompare(v, m);
+  updateTable(v, m);
+
+  /* ── BREAKEVEN ANNOTATION ── */
+  const ann = document.getElementById('breakeven-annotation');
+  if (m.breakeven) {
+    const annMaint = m.annualMaint * m.breakeven;
+    ann.textContent = '✓ Municipal tax revenue recoups the $' + fmtNum(m.capitalCost) + ' construction cost in year ' +
+      m.breakeven + '. Total cost (incl. ' + fmtCur(annMaint) + ' in maintenance by then) = ' +
+      fmtCur(m.capitalCost + annMaint) + '.';
+    ann.style.display = 'inline-block';
+  } else {
+    ann.textContent = 'No breakeven within 60 years at current assumptions. Consider a longer horizon or higher visitor count.';
+    ann.style.display = 'inline-block';
+  }
+}
+
+/* ─────────────────────────────────
+   CHART: BREAKEVEN LINE
+───────────────────────────────── */
+function updateBreakevenChart(v, m) {
+  destroyChart('breakeven');
+  const labels = [], costs = [], muniRev = [], econImpact = [];
+  for (let yr = 0; yr <= v.years; yr++) {
+    labels.push(yr === 0 ? 'Now' : 'Yr ' + yr);
+    costs.push(Math.round(m.capitalCost + m.annualMaint * yr));
+    muniRev.push(Math.round(m.annualMunicipal * yr));
+    econImpact.push(Math.round(m.annualEconomic * yr));
+  }
+  CH.breakeven = new Chart(document.getElementById('chartBreakeven'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Total Cost',
+          data: costs,
+          borderColor: '#D85A30',
+          backgroundColor: 'rgba(216,90,48,0.06)',
+          fill: true, borderWidth: 2, tension: 0.15, pointRadius: 0,
+          borderDash: [6,3]
+        },
+        {
+          label: 'Municipal Revenue',
+          data: muniRev,
+          borderColor: '#2D6A30',
+          backgroundColor: 'rgba(45,106,48,0.08)',
+          fill: true, borderWidth: 2.5, tension: 0.15, pointRadius: 0
+        },
+        {
+          label: 'Economic Impact',
+          data: econImpact,
+          borderColor: 'rgba(42,95,138,0.7)',
+          backgroundColor: 'rgba(42,95,138,0.03)',
+          fill: false, borderWidth: 2, borderDash: [3,3], tension: 0.15, pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '  ' + ctx.dataset.label + ': ' + fmtCur(ctx.raw) } }
+      },
+      scales: {
+        x: {
+          ticks: { autoSkip: true, maxTicksLimit: 11, font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        y: {
+          ticks: { font: { size: 11 }, callback: val => fmtCur(val) },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────
+   CHART: DONUT
+───────────────────────────────── */
+function updateDonutChart(v, m) {
+  destroyChart('donut');
+  const indirect = Math.max(0, m.annualEconomic - m.annualMunicipal);
+  const segments = [
+    { label: 'Sales tax revenue', value: Math.round(m.salesTaxAnn), color: '#2D6A30', type: 'direct' },
+    { label: 'Property tax revenue', value: Math.round(m.propTaxAnn), color: '#4A9951', type: 'direct' },
+    { label: 'Business & labor income', value: Math.round(indirect), color: '#2A5F8A', type: 'indirect' }
+  ].filter(d => d.value > 0);
+
+  document.getElementById('donut-legend').innerHTML = segments.map(s =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${s.color}"></span>${s.label} <span class="badge badge-${s.type}" style="margin-left:3px;">${s.type}</span></span>`
+  ).join('');
+
+  CH.donut = new Chart(document.getElementById('chartDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: segments.map(s => s.label),
+      datasets: [{
+        data: segments.map(s => s.value),
+        backgroundColor: segments.map(s => s.color),
+        borderWidth: 3, borderColor: '#FFFFFF'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '  ' + ctx.label + ': ' + fmtCur(ctx.raw) + '/yr' } }
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────
+   CHART: MILESTONES BAR
+───────────────────────────────── */
+function updateMilestoneChart(v, m) {
+  destroyChart('milestones');
+  const yrs = [1, 3, 5, 10, 15, v.years];
+  const uniqueYrs = [...new Set(yrs)];
+  const revenueVals = uniqueYrs.map(yr => Math.round(m.annualMunicipal * yr));
+  const colors = revenueVals.map(val => val >= m.capitalCost ? '#2D6A30' : '#A8C5A0');
+
+  CH.milestones = new Chart(document.getElementById('chartMilestones'), {
+    type: 'bar',
+    data: {
+      labels: uniqueYrs.map(y => 'Yr ' + y),
+      datasets: [
+        {
+          label: 'Cumulative municipal revenue',
+          data: revenueVals,
+          backgroundColor: colors,
+          borderRadius: 4, borderWidth: 0
+        },
+        {
+          label: 'Construction cost',
+          data: uniqueYrs.map(() => Math.round(m.capitalCost)),
+          type: 'line',
+          borderColor: '#D85A30',
+          borderWidth: 2,
+          borderDash: [5, 3],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '  ' + ctx.dataset.label + ': ' + fmtCur(ctx.raw) } }
+      },
+      scales: {
+        x: {
+          ticks: { font: { size: 11 }, autoSkip: false },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { font: { size: 11 }, callback: val => fmtCur(val) },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────
+   HIGHWAY COMPARISON
+───────────────────────────────── */
+function updateHighwayCompare(v, m) {
+  const trailCostPerMile = v.buildcost;
+  const items = [
+    { label: 'Volunteer-built singletrack',   perMile: 10000,      color: '#A8C5A0' },
+    { label: `Your project (${fmtCur(trailCostPerMile)}/mi · ${v.miles} mi total)`, perMile: trailCostPerMile, color: '#2D6A30', bold: true },
+    { label: 'Pro-built singletrack (2026)',   perMile: 70000,      color: '#4A9951' },
+    { label: '2-lane rural road',              perMile: 4000000,    color: '#AAA090' },
+    { label: '4-lane suburban highway',        perMile: 25000000,   color: '#7A7068' },
+    { label: 'Urban 6-lane interstate',        perMile: 80000000,   color: '#3D3830' }
+  ];
+  const maxLog = Math.log10(80000000);
+  const minLog = Math.log10(5000);
+  const container = document.getElementById('highway-compare');
+  container.innerHTML = items.map(item => {
+    const pct = Math.max(2, ((Math.log10(item.perMile) - minLog) / (maxLog - minLog)) * 100);
+    return `<div class="compare-item">
+      <div class="compare-label-row">
+        <span style="${item.bold ? 'font-weight:600;color:var(--forest)' : ''}">${item.label}</span>
+        <span class="compare-val-txt">${fmtCur(item.perMile)}/mi</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${item.color};">
+          ${pct > 15 ? `<span class="bar-fill-label">${fmtCur(item.perMile)}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ─────────────────────────────────
+   TABLE
+───────────────────────────────── */
+function updateTable(v, m) {
+  const tbody = document.getElementById('table-body');
+  let html = '';
+  for (let yr = 1; yr <= 10; yr++) {
+    const cumCost    = Math.round(m.capitalCost + m.annualMaint * yr);
+    const cumMuni    = Math.round(m.annualMunicipal * yr);
+    const cumEcon    = Math.round(m.annualEconomic * yr);
+    const net        = cumMuni - m.capitalCost;
+    const isBreakeven = m.breakeven && yr === m.breakeven;
+    const rowStyle   = isBreakeven ? 'background:#EDF5ED;font-weight:500;' : (yr % 2 === 0 ? 'background:#FAFAF7;' : '');
+    const netColor   = net >= 0 ? 'color:#2D6A30;' : 'color:#B84C24;';
+    html += `<tr style="${rowStyle}">
+      <td style="padding:6px 8px;">${yr}${isBreakeven ? ' ✓' : ''}</td>
+      <td style="text-align:right;padding:6px 8px;">${fmtCur(cumCost)}</td>
+      <td style="text-align:right;padding:6px 8px;">${fmtCur(cumMuni)}</td>
+      <td style="text-align:right;padding:6px 8px;">${fmtCur(cumEcon)}</td>
+      <td style="text-align:right;padding:6px 8px;${netColor}">${net >= 0 ? '+' : ''}${fmtCur(net)}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+/* ─────────────────────────────────
+   SET SCENARIO
+───────────────────────────────── */
+function setScenario(name) {
+  ['conservative','moderate','optimistic'].forEach(s =>
+    document.getElementById('btn-' + s).classList.toggle('active', s === name)
+  );
+  const sc = SCENARIOS[name];
+  Object.entries(sc).forEach(([k, val]) => {
+    const el = document.getElementById('s-' + k);
+    if (el) {
+      el.value = val;
+      sv(k, val);
+    }
+  });
+  recalc();
+}
+
+/* ─────────────────────────────────
+   INIT
+───────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  setScenario('moderate');
+});
+</script>
+</body>
+</html>
